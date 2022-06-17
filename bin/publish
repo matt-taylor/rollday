@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+if [ -z "$GEMFURY_TOKEN" ]; then
+    echo 'Environment variable GEMFURY_TOKEN must be specified. Aborting.'
+    exit 1
+fi
+
+VERSION=$(make version)
+PACKAGE=rollday-${VERSION}.gem
+
+# Build and publish to Gemfury
+gem build rollday.gemspec
+curl -F package=@${PACKAGE} https://${GEMFURY_TOKEN}@push.fury.io/chime/
