@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  json_schematize:
+  rollday:
     command: tail -f /dev/null
     build:
       context: .
