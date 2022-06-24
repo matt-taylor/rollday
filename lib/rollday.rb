@@ -10,6 +10,8 @@ module Rollday
   class Faraday < Error; end # used to create backtrace for rollbar
   class ConfigError < Error; end
 
+  FARADAY_NAME = :rollday.freeze
+
   def self.configure
     yield configuration if block_given?
   end
@@ -32,8 +34,12 @@ module Rollday
 
   end
 
-  def self.set_default_client!
+  def self.use_default_middleware!
     Rollday::UseMiddleware.use_default_middleware!
+  end
+
+  def self.use_default_client_middleware!
+    Rollday::UseMiddleware.use_default_client_middleware!
   end
 
   def self.with_scope()

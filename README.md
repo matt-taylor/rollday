@@ -19,8 +19,10 @@ gem 'rollday'
 
 Intialization should happen in `app/initializers/rollday.rb`. All options below are the current defaults unless stated
 ```ruby
-Rollay.configure do |config|
-  config.use_default_middleware! # [Not default option] set middleware for all Faraday requests
+Rollday.configure do |config|
+  config.use_default_middleware! # [Not default option] set middleware for all Faraday requests (Faraday.get(...))
+
+  config.use_default_client_middleware! # [Not default option] set middleware for all Faraday clients.
 
   config.status_code_regex = /[45]\d\d$/ # If status code matches, will attempt to send a rollbar
 
@@ -34,7 +36,7 @@ Rollay.configure do |config|
 
   config.params_query_sanitizer = [] # Array of Procs to sanitize query params. Can remove params or call Rollbar::Scrubbers.scrub_value(*) to assign value
 
-  config.message = ->(status, phrase, domain) { "[#{status}]: #{domain}" } # Message to set for the Rollbar item. Value can be a proc or a static message
+  config.message = ->(status, phrase, body, path, domain) { "[#{status}]: #{domain} - #{path}" } # Message to set for the Rollbar item. Value can be a proc or a static message
 
   config.use_message_exception = true # When set to true, Exception will be used to establish a backtrace
 

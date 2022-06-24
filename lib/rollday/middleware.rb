@@ -14,8 +14,7 @@ module Rollday
     end
 
     def call(env)
-      result = @app.call(env)
-
+      result = @app.(env)
       if ship_to_rollbar?(result.status)
         send_rollbar(result)
       end

@@ -78,7 +78,11 @@ module Rollday
     end
 
     def use_default_middleware!
-      Rollday::UseMiddleware.use_default_middleware!
+      Rollday.use_default_middleware!
+    end
+
+    def use_default_client_middleware!
+      Rollday.use_default_client_middleware!
     end
   end
 end
