@@ -1,3 +1,4 @@
-example_id                             | status | run_time        |
--------------------------------------- | ------ | --------------- |
-./spec/lib/rollday/sample_spec.rb[1:1] | passed | 0.00119 seconds |
+example_id                                 | status | run_time        |
+------------------------------------------ | ------ | --------------- |
+./spec/lib/rollday/middleware_spec.rb[1:1] | passed | 31.53 seconds   |
+./spec/lib/rollday/sample_spec.rb[1:1]     | passed | 0.00126 seconds |

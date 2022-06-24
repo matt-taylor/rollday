@@ -1,11 +1,9 @@
 # Rollday
 
-Welcome to your new gem! In this directory, you'll find the files you need to be
-able to package up your Ruby library into a gem. Put your Ruby code in the file
-`lib/rollday`. To experiment with that code, run
-`bin/console` for an interactive prompt.
+Rollday is a a gem to integrate with Faraday requests. It adds a default middleware for your projecrts Faraday client to send a rollbar for configurable response status codes.
 
-TODO: Delete this and the text above, and describe your gem
+It can be configured once for th eentire project, or customized per Faraday request
+
 
 ## Installation
 
@@ -15,17 +13,36 @@ Add this line to your application's Gemfile:
 gem 'rollday'
 ```
 
-And then execute:
-
-    $ bundle install
-
-Or install it yourself as:
-
-    $ gem install rollday
-
 ## Usage
 
-TODO: Write usage instructions here
+### Initialization
+
+Intialization should happen in `app/initializers/rollday.rb`. All options below are the current defaults unless stated
+```ruby
+Rollday.configure do |config|
+  config.use_default_middleware! # [Not default option] set middleware for all Faraday requests (Faraday.get(...))
+
+  config.use_default_client_middleware! # [Not default option] set middleware for all Faraday clients.
+
+  config.status_code_regex = /[45]\d\d$/ # If status code matches, will attempt to send a rollbar
+
+  config.use_person_scope = true # Assign a person scope to the rollbar scope
+
+  config.use_params_scope = true # Assign a params scope to the rollbar scope. Configured from Faraday params for request
+
+  config.params_scope_sanitizer = [] # Array of Procs to sanitize params. Can remove params or call Rollbar::Scrubbers.scrub_value(*) to assign value
+
+  config.use_query_scope = true # Assign the url queries to the scope
+
+  config.params_query_sanitizer = [] # Array of Procs to sanitize query params. Can remove params or call Rollbar::Scrubbers.scrub_value(*) to assign value
+
+  config.message = ->(status, phrase, body, path, domain) { "[#{status}]: #{domain} - #{path}" } # Message to set for the Rollbar item. Value can be a proc or a static message
+
+  config.use_message_exception = true # When set to true, Exception will be used to establish a backtrace
+
+  config.rollbar_level = ->(_status) { :warning } # Rollbar level can be configurable based on the status code
+end
+```
 
 ## Development
 
