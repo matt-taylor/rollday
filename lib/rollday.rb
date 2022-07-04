@@ -1,15 +1,12 @@
 # frozen_string_literal: true
 
-require "rollday/version"
 require "faraday"
 require "rollday/configuration"
+require "rollday/errors"
 require "rollday/middleware"
+require "rollday/version"
 
 module Rollday
-  class Error < StandardError; end
-  class Faraday < Error; end # used to create backtrace for rollbar
-  class ConfigError < Error; end
-
   FARADAY_NAME = :rollday.freeze
 
   def self.configure
@@ -20,18 +17,20 @@ module Rollday
     @configuration ||= Rollday::Configuration.new
   end
 
-  class << self
-    alias_method :config, :configuration
-  end
-
   def self.configuration=(object)
     raise ConfigError, "Expected configuration to be a Rollday::Configuration" unless object.is_a?(Rollday::Configuration)
 
     @configuration = object
   end
 
-  def self.use_middleware!
+  def self.reset_configuration!
+    @configuration = Rollday::Configuration.new
+  end
 
+  class << self
+    alias_method :config, :configuration
+    alias_method :config=, :configuration=
+    alias_method :reset_config!, :reset_configuration!
   end
 
   def self.use_default_middleware!
@@ -40,6 +39,10 @@ module Rollday
 
   def self.use_default_client_middleware!
     Rollday::UseMiddleware.use_default_client_middleware!
+  end
+
+  def self.register_middleware!
+    Rollday::UseMiddleware.register_middleware!
   end
 
   def self.with_scope()
