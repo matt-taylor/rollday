@@ -14,7 +14,7 @@ module Rollday
       message = Rollday.config.message.(result.status, result.reason_phrase, result.body, URI(result.env.url).path, URI(result.env.url).host)
       return message unless Rollday.config.use_message_exception
 
-      Rollday::Faraday.new(message)
+      Rollday.config.exception_class.new(message)
     end
 
     def rollbar_scope(result)
@@ -36,8 +36,10 @@ module Rollday
 
     def query_scope(result)
       return {} unless  Rollday.config.use_query_scope
+      raw_query = URI(result.env.url).query
+      return if raw_query.nil?
 
-      query_scope = CGI::parse(URI(result.env.url).query)
+      query_scope = CGI::parse(raw_query)
       Rollday.config.params_scope_sanitizer.each do |sanitizer|
         query_scope = sanitizer.(query_params)
       end

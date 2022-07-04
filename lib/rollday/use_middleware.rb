@@ -23,6 +23,7 @@ module Rollday
     def self.use_default_client_middleware!
       return false if @use_default_client_middleware
 
+      register_middleware!
       require "rollday/client_middleware"
       ::Faraday::ConnectionOptions.prepend(Rollday::FaradayConnectionOptions)
 
