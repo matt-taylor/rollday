@@ -11,7 +11,6 @@ RSpec.describe Rollday::Middleware do
     let(:message_type) { Rollday.config.use_message_exception ? Rollday.config.exception_class : String }
     if receive_rollbar
       it "reports to rollbar" do
-        expect_any_instance_of(described_class).to receive(:send_rollbar).and_call_original
         expect(::Rollbar).to receive(:log).with(rollbar_level, be_a(message_type), be_a(Hash))
 
         subject
