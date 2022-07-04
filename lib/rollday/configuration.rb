@@ -2,9 +2,12 @@
 
 require "rollday/use_middleware"
 require "rollbar"
+require "class_composer"
 
 module Rollday
   class Configuration
+    include ClassComposer::Generator
+
     ROLLBAR_LEVELS = [
       DEBUG = :debug,
       INFO = :info,
@@ -14,62 +17,21 @@ module Rollday
     ]
 
     DEFAULT_STATUS_CODE_REGEX = /[45]\d\d$/
-    DEFAULT_MESSAGE_PROC = ->(status, phrase, domain) { "[#{status}]: #{domain}" }
+    DEFAULT_MESSAGE_PROC = ->(status, phrase, body, path, domain) { "[#{status}]: #{domain} - #{path}" }
     DEFAULT_LEVEL_PROC = ->(_status) { WARNING }
-
-    attr_accessor :use_person_scope, :use_params_scope, :params_scope_sanitizer, :use_query_scope, :params_query_sanitizer, :use_message_exception
-
-    def initialize(options = {})
-      @status_code_regex = DEFAULT_STATUS_CODE_REGEX
-      @use_person_scope = true
-
-      @use_params_scope = true
-      @params_scope_sanitizer = []
-
-      @use_query_scope = true
-      @params_query_sanitizer = []
-
-      @message = DEFAULT_MESSAGE_PROC
-      @use_message_exception = true
-
-      @rollbar_level = DEFAULT_LEVEL_PROC
+    ROLLBAR_VALIDATOR = Proc.new do |value|
+      value.is_a?(Proc) || ROLLBAR_LEVELS.include?(value)
     end
 
-    def rollbar_level=(level)
-      raise ConfigError, "level= must be passed a Proc or #{ROLLBAR_LEVELS}. But was passed a #{level} instead"
-
-      @rollbar_level = level
-    end
-
-    def rollbar_level
-      @rollbar_level
-    end
-
-    def message=(message)
-      raise ConfigError, "message= must be passed a Proc but was passed a #{message.class} instead"
-
-      @message = message
-    end
-
-    def message
-      @message
-    end
-
-    def status_code_regex
-      @status_code_regex
-    end
-
-    def status_code_regex=(regex)
-      raise ConfigError, "status_code_regex= must be passed a regex but was passed a #{regex.class} instead"
-
-      @status_code_regex = regex
-    end
-
-    def person_scope=(person_scope)
-      raise ConfigError, "person_scope= must be passed a Proc but was passed a #{person_scope.class} instead"
-
-      @person_scope = person_scope
-    end
+    add_composer :message, allowed: [Proc, String], default: DEFAULT_MESSAGE_PROC
+    add_composer :params_query_sanitizer, allowed: Array, default: []
+    add_composer :params_scope_sanitizer, allowed: Array, default: []
+    add_composer :status_code_regex, allowed: Regexp, default: DEFAULT_STATUS_CODE_REGEX
+    add_composer :use_message_exception, allowed: [TrueClass, FalseClass], default: true
+    add_composer :use_params_scope, allowed: [TrueClass, FalseClass], default: true
+    add_composer :use_person_scope, allowed: [TrueClass, FalseClass], default: true
+    add_composer :use_query_scope, allowed: [TrueClass, FalseClass], default: true
+    add_composer :rollbar_level, allowed: [Proc, Symbol], default: DEFAULT_LEVEL_PROC, validator: ROLLBAR_VALIDATOR, invalid_message: -> (val) { "Value must be a Proc or one of #{ROLLBAR_LEVELS}" }
 
     def person_scope
       return -> {} unless @use_person_scope
