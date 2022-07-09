@@ -51,5 +51,9 @@ module Rollday
     def use_default_client_middleware!
       Rollday.use_default_client_middleware!
     end
+
+    def register_middleware!
+      Rollday.register_middleware!
+    end
   end
 end

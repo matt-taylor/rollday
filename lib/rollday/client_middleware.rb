@@ -7,7 +7,7 @@ module Rollday
         # allow scope to remove usage of middleware for a request
         # after it has been injected into the Connection
         if Rollday.config.allow_client_middleware
-          builder.use(Rollday::FARADAY_NAME)
+          builder.use(Rollday::MIDDLEWARE_NAME)
         end
       end
     end

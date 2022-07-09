@@ -7,7 +7,7 @@ require "rollday/middleware"
 require "rollday/version"
 
 module Rollday
-  FARADAY_NAME = :rollday.freeze
+  MIDDLEWARE_NAME = :rollday.freeze
 
   def self.configure
     yield configuration if block_given?

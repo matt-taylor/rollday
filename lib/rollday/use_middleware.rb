@@ -33,7 +33,7 @@ module Rollday
     def self.register_middleware!
       return false if @register_middleware
 
-      ::Faraday::Middleware.register_middleware(Rollday::FARADAY_NAME => Middleware)
+      ::Faraday::Middleware.register_middleware(Rollday::MIDDLEWARE_NAME => Middleware)
       @register_middleware = true
     end
   end

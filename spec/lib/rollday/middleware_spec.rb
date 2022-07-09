@@ -182,7 +182,7 @@ RSpec.describe Rollday::Middleware do
     context "with passed in middleware" do
       let(:client) do
         Faraday.new(url: base_url) do |conn|
-          conn.use Rollday::FARADAY_NAME
+          conn.use Rollday::MIDDLEWARE_NAME
         end
       end
 
