@@ -11,7 +11,11 @@ RSpec.describe Rollday::Middleware do
     let(:message_type) { Rollday.config.use_message_exception ? Rollday.config.exception_class : String }
     if receive_rollbar
       it "reports to rollbar" do
-        expect(::Rollbar).to receive(:log).with(rollbar_level, be_a(message_type), be_a(Hash))
+        # At least once is needd for Default Client
+        # Default (Faraday.get etc) cannot be modifed after the Client has been created
+        # Meaning it can not be modified -- The default client instance injects middleware to the builder when it gets called
+        # Causing the middleware to get pushed to Faraday twice when both are used
+        expect(::Rollbar).to receive(:log).with(rollbar_level, be_a(message_type), be_a(Hash)).at_least(:once)
 
         subject
       end
@@ -31,6 +35,7 @@ RSpec.describe Rollday::Middleware do
       before do
         Rollday.use_default_middleware!
       end
+
       context "with 2xx" do
         let(:status_code) { Faker::Number.between(from: 200, to: 300) }
 
