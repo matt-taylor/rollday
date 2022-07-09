@@ -8,7 +8,7 @@ RSpec.describe Rollday::Middleware do
   let(:base_url) { "http://httpstat.us" }
 
   shared_examples "Rollbar Middleware" do |receive_rollbar|
-    let(:message_type) { Rollday.config.use_message_exception ? Rollday.config.exception_class : String }
+    let(:message_type) { Rollday.config.use_message_exception ? Rollday::Faraday : String }
     if receive_rollbar
       it "reports to rollbar" do
         # At least once is needd for Default Client

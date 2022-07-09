@@ -25,6 +25,8 @@ module Rollday
       value.is_a?(Proc) || ROLLBAR_LEVELS.include?(value)
     end
 
+    EXCEPTION_CLASS_DEFAULT = -> (status, phrase, body, path, domain) { Rollday::Faraday }
+
     add_composer :message, allowed: [Proc, String], default: DEFAULT_MESSAGE_PROC
     add_composer :params_query_sanitizer, allowed: Array, default: []
     add_composer :params_scope_sanitizer, allowed: Array, default: []
@@ -35,7 +37,7 @@ module Rollday
     add_composer :use_params_scope, allowed: [TrueClass, FalseClass], default: true
     add_composer :use_person_scope, allowed: [TrueClass, FalseClass], default: true
     add_composer :use_query_scope, allowed: [TrueClass, FalseClass], default: true
-    add_composer :exception_class, allowed: Class, default: Rollday::Faraday
+    add_composer :exception_class, allowed: Proc, default: EXCEPTION_CLASS_DEFAULT
     add_composer :allow_client_middleware, allowed: [TrueClass, FalseClass], default: true
 
     def person_scope
