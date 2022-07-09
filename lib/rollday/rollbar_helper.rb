@@ -11,10 +11,12 @@ module Rollday
     end
 
     def rollbar_message(result)
-      message = Rollday.config.message.(result.status, result.reason_phrase, result.body, URI(result.env.url).path, URI(result.env.url).host)
+      params = [result.status, result.reason_phrase, result.body, URI(result.env.url).path, URI(result.env.url).host]
+      message = Rollday.config.message.(*params)
       return message unless Rollday.config.use_message_exception
 
-      Rollday.config.exception_class.new(message)
+      error_klass = Rollday.config.exception_class.(*params)
+      error_klass.new(message)
     end
 
     def rollbar_scope(result)
