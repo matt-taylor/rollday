@@ -20,9 +20,9 @@ gem 'rollday'
 Intialization should happen in `app/initializers/rollday.rb`. All options below are the current defaults unless stated
 ```ruby
 Rollday.configure do |config|
-  config.use_default_middleware! # [Not default option] set middleware for all Faraday requests (Faraday.get(...))
+  config.use_default_middleware! # [Not default option] set middleware for all Faraday requests (Faraday.get(...)). Caution when used with Default Client Middleware
 
-  config.use_default_client_middleware! # [Not default option] set middleware for all Faraday clients.
+  config.use_default_client_middleware! # [Not default option] set middleware for all Faraday instances. Caution when used with Default Middleware
 
   config.status_code_regex = /[45]\d\d$/ # If status code matches, will attempt to send a rollbar
 
@@ -43,6 +43,65 @@ Rollday.configure do |config|
   config.rollbar_level = ->(_status) { :warning } # Rollbar level can be configurable based on the status code
 end
 ```
+
+### Ex: Default Faraday Client
+
+```ruby
+# Rollday initializer
+Rollday.configure do |config|
+  config.use_default_middleware!
+  config.status_code_regex = /[2345]\d\d$/
+  config.message = -> (s, phrase, b, path, domain) { "[#{domain}] via #{path} returned #{status}" }
+end
+
+Farady.get("http://httpstat.us/207") # => 200 status code returned
+# Will send a rollbar because Status code matches regex
+```
+
+### Ex: Default Faraday Instance
+
+```ruby
+# Rollday initializer
+Rollday.configure do |config|
+  config.use_default_client_middleware!
+  config.message = -> (s, phrase, b, path, domain) { "[#{domain}] via #{path} returned #{status} using default client middleware" }
+end
+Farady.get("http://httpstat.us/500") # => 500 status code returned
+# Rollbar will not get sent because `use_default_middleware!` is not set
+
+client = Faraday.new(url: base_url)
+client.get("404") # => 404 status code returned
+# Will send a rollbar because Status code matches regex
+```
+
+### Ex: Custom Faraday Instance
+
+```ruby
+# Rollday initializer
+Rollday.configure do |config|
+  config.status_code_regex = /[2]\d\d$/
+  config.message = -> (s, phrase, b, path, domain) { "[#{domain}] via #{path} returned #{status} using custom client middleware" }
+end
+Farady.get("http://httpstat.us/500") # => 500 status code returned
+# Rollbar will not get sent because `use_default_middleware!` is not set
+
+client = Faraday.new(url: base_url) do |conn|
+  conn.use Rollday::MIDDLEWARE_NAME
+end
+client.get("209") # => 209 status code returned
+# Will send a rollbar because Status code matches regex
+```
+
+### Use Caution
+```ruby
+# Rollday initializer
+Rollday.configure do |config|
+  # Do not do this!
+  config.use_default_middleware!
+  config.use_default_client_middleware!
+end
+```
+Adding both the `use_default_middleware!` and the `use_default_client_middleware!` will cause double reporting of all default Faraday builders.
 
 ## Development
 

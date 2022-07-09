@@ -4,7 +4,7 @@ require "faraday"
 require "rollday/rollbar_helper"
 
 module Rollday
-  class Middleware < Faraday::Middleware
+  class Middleware < ::Faraday::Middleware
     include RollbarHelper
 
     def initialize(app, **)
