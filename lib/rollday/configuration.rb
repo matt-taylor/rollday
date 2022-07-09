@@ -39,7 +39,7 @@ module Rollday
     add_composer :allow_client_middleware, allowed: [TrueClass, FalseClass], default: true
 
     def person_scope
-      return -> {} unless @use_person_scope
+      return -> {} unless use_person_scope
 
       @person_scope || Rollbar.scope.scope_object.raw[:person] || -> {}
     end
